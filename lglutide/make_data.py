@@ -90,12 +90,6 @@ def create_dataloader(annotations):
 
     dataloader = DataLoader(custom_dataset, batch_size=config.BATCHSIZE, shuffle=True)
 
-    # check if the dataloader is working properly
-    # for i, data in enumerate(dataloader, 0):
-    #     print(data[0].shape, data[1].shape)
-    #     break
-    # exit(0)
-
     return dataloader
 
 

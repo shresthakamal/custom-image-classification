@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import f1_score
+from torch.utils.tensorboard import SummaryWriter
 
 from lglutide import config
 from lglutide.make_data import make_data
@@ -34,14 +35,16 @@ if __name__ == "__main__":
 
     training_stats = {}
 
+    # initialize tensorboard to save at runs directory
+    writer = SummaryWriter("lglutide/runs")
+
     for epoch in range(config.EPOCHS):  # loop over the dataset multiple times
         model.train()
 
         print(f"Epoch {epoch+1}\n-------------------------------")
 
         running_loss = 0.0
-        training_stats[epoch] = {}
-        training_stats[epoch]["training_loss"] = []
+        training_loss = []
 
         for i, data in enumerate(trainloader, 0):
             # get the inputs; data is a list of [inputs, labels]
@@ -60,17 +63,23 @@ if __name__ == "__main__":
             outputs = model(inputs)
 
             loss = criterion(outputs, labels)
+
+            training_loss.append(loss.item())
+
             running_loss += loss.item()
 
             # gradient accumulation in every 10 mini batch iterations
+            # print every 10 mini-batches
             if i % 10 == 0:
                 loss.backward()
                 optimizer.step()
 
-            if i % 50 == 0:  # print every 50 mini-batches
-                print("[{}, {}] loss: {}".format(epoch + 1, i + 1, running_loss / 50))
+                print("[{}, {}] loss: {}".format(epoch + 1, i + 1, running_loss / 10))
 
-                training_stats[epoch]["training_loss"].append(running_loss / 50)
+                # plot the training loss only as well
+                writer.add_scalar(
+                    "Training Loss", running_loss / 10, epoch * len(trainloader) + i
+                )
 
                 running_loss = 0.0
 
@@ -78,8 +87,8 @@ if __name__ == "__main__":
         model.eval()
         correct = 0
         total = 0
-
         true, preds = [], []
+        testing_loss = []
 
         with torch.no_grad():
             for data in testloader:
@@ -92,6 +101,14 @@ if __name__ == "__main__":
 
                 outputs = model(images)
 
+                loss = criterion(outputs, labels)
+                testing_loss.append(loss.item())
+
+                # plot the testing loss only as well
+                writer.add_scalar(
+                    "Testing Loss", loss.item(), epoch * len(testloader) + i
+                )
+
                 _, predicted = torch.max(outputs.data, 1)
 
                 total += labels.size(0)
@@ -102,6 +119,16 @@ if __name__ == "__main__":
                 true.append(labels.detach().cpu().numpy())
                 preds.append(predicted.detach().cpu().numpy())
 
+        # plot training and testing loss in the same figure
+        writer.add_scalars(
+            "Loss",
+            {
+                "Training Loss": np.mean(training_loss),
+                "Testing Loss": np.mean(testing_loss),
+            },
+            epoch,
+        )
+
         # combine individual arrays inside the list to a single array
         true = np.concatenate(true)
         preds = np.concatenate(preds)
@@ -111,18 +138,13 @@ if __name__ == "__main__":
             "\nAccuracy of the network on the test images: %d %%"
             % (100 * correct / total)
         )
+        writer.add_scalar("Accuracy", 100 * correct / total, epoch)
 
         # print the F1 score
         print(f"""F1 Score: {f1_score(true, preds, average="weighted")}\n""")
-
-        training_stats[epoch]["accuracy"] = 100 * correct / total
-        training_stats[epoch]["f1_score"] = f1_score(true, preds, average="weighted")
-
-        # save the training stats to a file
-        with open("lglutide/training_stats.txt", "a") as f:
-            f.write(str(training_stats))
+        writer.add_scalar("F1 Score", f1_score(true, preds, average="weighted"), epoch)
 
         # save the model
-        torch.save(model.state_dict(), "lglutide/models/model.pth")
+        torch.save(model.state_dict(), f"lglutide/models/model_{epoch}.pth")
 
     print("Finished Training")
