@@ -15,6 +15,8 @@ def creat_annotations(a_path, u_path):
     a_images = glob.glob(a_path + "*.jpeg")
     u_images = glob.glob(u_path + "*.jpeg")
 
+    print(f"Image in A: {len(a_images)}, Images in U: {len(u_images)}")
+
     # create the annotations file
     annotations = pd.DataFrame(columns=["image", "label"])
 
@@ -56,6 +58,9 @@ class CustomImageDataset(Dataset):
         img_path = self.image_path.iloc[idx]
 
         image = read_image(img_path)
+
+        image = transforms.Resize((config.IMAGE_W, config.IMAGE_H))(image)
+
         label = self.img_labels.iloc[idx]
 
         # convert image to numpy array
@@ -85,6 +90,12 @@ def create_dataloader(annotations):
 
     dataloader = DataLoader(custom_dataset, batch_size=config.BATCHSIZE, shuffle=True)
 
+    # check if the dataloader is working properly
+    # for i, data in enumerate(dataloader, 0):
+    #     print(data[0].shape, data[1].shape)
+    #     break
+    # exit(0)
+
     return dataloader
 
 
@@ -94,6 +105,7 @@ def make_data():
 
     # create the dataloaders
     train = create_dataloader(annotations="data/train.csv")
+
     test = create_dataloader(annotations="data/test.csv")
 
     return train, test
