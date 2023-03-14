@@ -1,9 +1,9 @@
-
 # Training Instructions
 
 Make sure the folders `A` and `U` containing images are place inside `data` folder like shown below:
 
 ```
+
 ├── data
 │   ├── A
 │   │   ├── A10.jpeg
@@ -29,8 +29,8 @@ Make sure the folders `A` and `U` containing images are place inside `data` fold
 │       ├── U8.jpeg
 │       └── U9.jpeg
 
-```
 
+```
 
 ## Install Dependencies:
 
