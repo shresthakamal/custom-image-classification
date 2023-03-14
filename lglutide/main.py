@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -40,6 +41,7 @@ if __name__ == "__main__":
 
         running_loss = 0.0
         training_stats[epoch] = {}
+        training_stats[epoch]["training_loss"] = []
 
         for i, data in enumerate(trainloader, 0):
             # get the inputs; data is a list of [inputs, labels]
@@ -58,18 +60,17 @@ if __name__ == "__main__":
             outputs = model(inputs)
 
             loss = criterion(outputs, labels)
+            running_loss += loss.item()
 
             # gradient accumulation in every 10 mini batch iterations
-            if i % 15 == 0:
+            if i % 10 == 0:
                 loss.backward()
                 optimizer.step()
 
-            running_loss += loss.item()
-
-            if i % 50 == 0:  # print every 4 mini-batches
+            if i % 50 == 0:  # print every 50 mini-batches
                 print("[{}, {}] loss: {}".format(epoch + 1, i + 1, running_loss / 50))
 
-                training_stats[epoch]["loss"] = running_loss / 50
+                training_stats[epoch]["training_loss"].append(running_loss / 50)
 
                 running_loss = 0.0
 
@@ -101,19 +102,21 @@ if __name__ == "__main__":
                 true.append(labels.detach().cpu().numpy())
                 preds.append(predicted.detach().cpu().numpy())
 
+        # combine individual arrays inside the list to a single array
+        true = np.concatenate(true)
+        preds = np.concatenate(preds)
+
+        # print the accuracy of the network
         print(
-            "Accuracy of the network on the test images: %d %%\n"
+            "\nAccuracy of the network on the test images: %d %%"
             % (100 * correct / total)
         )
-
-        # calculate F1 score based on true and predicted labels
-        true = torch.cat(true)
-        preds = torch.cat(preds)
 
         # print the F1 score
         print(f"""F1 Score: {f1_score(true, preds, average="weighted")}\n""")
 
         training_stats[epoch]["accuracy"] = 100 * correct / total
+        training_stats[epoch]["f1_score"] = f1_score(true, preds, average="weighted")
 
         # save the training stats to a file
         with open("lglutide/training_stats.txt", "a") as f:

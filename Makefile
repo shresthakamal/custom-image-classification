@@ -5,4 +5,4 @@ install:
 	pip install -r requirements.txt
 
 train:
-	python -m lglutide.main CUDA_VISIBLE_DEVICES=7
+	python -m lglutide.main
