@@ -6,3 +6,5 @@ IMAGE_W = 255
 IMAGE_H = 255
 LEARNING_RATE = 0.001
 MOMENTUM = 0.9
+INFERENCE_MODEL = "lglutide/models/model_5.pth"
+download_model = False

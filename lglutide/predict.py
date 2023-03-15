@@ -12,19 +12,16 @@ def predict(image):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     image = transforms.Resize((config.IMAGE_W, config.IMAGE_H))(image)
-    # convert image to numpy array
     image = image.numpy()
-
     image = transforms.ToTensor()(image)
-    image = image.to(device)
     image = image.reshape(-1, config.IMAGE_C, config.IMAGE_H, config.IMAGE_W)
 
     model = NNModel()
 
+    image = image.to(device)
     model = model.to(device)
 
-    model.load_state_dict(torch.load("lglutide/models/model_4.pth"))
-
+    model.load_state_dict(torch.load(config.INFERENCE_MODEL))
     # set the model to evaluation mode
     model.eval()
 
@@ -42,10 +39,32 @@ def predict(image):
         print("A")
 
 
+def check_if_model_exists():
+    try:
+        with open(config.INFERENCE_MODEL, "rb") as f:
+            print("Model found. Loading model...")
+    except FileNotFoundError:
+        if config / download_model:
+            import gdown
+
+            # download the pretrained model from google drive
+            print("Model not found. Downloading model...")
+            gdown.download(
+                "https://drive.google.com/uc?id=1Y8W5YV0vJZu5wZoJ8Zu5E6jv9e9X7B9O",
+                config.INFERENCE_MODEL,
+                quiet=False,
+            )
+        else:
+            print(
+                "Model not found. Please train your model or download the pretrained model."
+            )
+
+
 # python main block
 if __name__ == "__main__":
+    check_if_model_exists()
+
     img_path = input("Enter the image path: ")
-    # img_path = "data/A/A1.jpeg"
     image = read_image(img_path)
 
     predict(image)

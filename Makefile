@@ -6,3 +6,9 @@ install:
 
 train:
 	python -m lglutide.main
+
+tensorboard:
+	tensorboard --logdir=lglutide/runs
+
+inference:
+	python -m lglutide.predict
