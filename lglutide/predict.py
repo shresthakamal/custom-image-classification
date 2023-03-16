@@ -44,7 +44,7 @@ def check_if_model_exists():
         with open(config.INFERENCE_MODEL, "rb") as f:
             print("Model found. Loading model...")
     except FileNotFoundError:
-        if config / download_model:
+        if config.download_model:
             import gdown
 
             # download the pretrained model from google drive
