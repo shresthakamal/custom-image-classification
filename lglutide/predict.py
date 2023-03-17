@@ -29,14 +29,15 @@ def predict(image):
     with torch.no_grad():
         preds = model(image)
 
-    # get the class with the highest probability
-    preds = torch.argmax(preds, dim=1)
+    print(preds)
 
-    # print the class
-    if preds == 0:
-        print("U")
-    else:
-        print("A")
+    # convert the predictions to probabilities
+    probs = torch.softmax(preds, dim=1)
+
+    # detach the tensor from the graph
+    probs = probs.detach().cpu().numpy()[0]
+
+    return probs
 
 
 def check_if_model_exists():
@@ -66,5 +67,7 @@ if __name__ == "__main__":
 
     img_path = input("Enter the image path: ")
     image = read_image(img_path)
+
+    print(image, image.shape, image.dtype)
 
     predict(image)

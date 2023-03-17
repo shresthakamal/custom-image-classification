@@ -12,3 +12,6 @@ tensorboard:
 
 inference:
 	python -m lglutide.predict
+
+app:
+	python -m api.app
