@@ -1,10 +1,12 @@
-TRAIN_SIZE = 0.8
+SEED = 42
 BATCHSIZE = 4
-EPOCHS = 10
+EPOCHS = 5
 IMAGE_C = 3
-IMAGE_W = 255
-IMAGE_H = 255
+IMAGE_W = 28
+IMAGE_H = 28
 LEARNING_RATE = 0.001
-MOMENTUM = 0.9
 INFERENCE_MODEL = "lglutide/models/model_5.pth"
 download_model = False
+k_fold = 5
+dropout = 0.2
+gradient_accumulate_per_mini_batch = 10

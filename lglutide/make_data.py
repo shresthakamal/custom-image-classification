@@ -31,12 +31,7 @@ def creat_annotations(a_path, u_path):
     # shuffle the annotations file
     annotations = annotations.sample(frac=1).reset_index(drop=True)
 
-    # divide the annotations in train.csv and test.csv
-    train = annotations.iloc[: int(config.TRAIN_SIZE * len(annotations))]
-    test = annotations.iloc[int(config.TRAIN_SIZE * len(annotations)) :]
-
-    train.to_csv("data/train.csv", index=False)
-    test.to_csv("data/test.csv", index=False)
+    annotations.to_csv("data/data.csv", index=False)
 
     print("Annotations file created!")
 
@@ -77,32 +72,21 @@ class CustomImageDataset(Dataset):
 
 def make_annotations():
     # check if the annotations file exists
-    if not os.path.exists("data/train.csv") or not os.path.exists("data/test.csv"):
+    if not os.path.exists("data/data.csv"):
         # if not, create the annotations file
         creat_annotations(a_path="data/A/", u_path="data/U/")
     else:
         print("Annotations file already exists!")
 
 
-def create_dataloader(annotations):
-    # create a custom dataset and dataloader
-    custom_dataset = CustomImageDataset(annotations_file=annotations)
-
-    dataloader = DataLoader(custom_dataset, batch_size=config.BATCHSIZE, shuffle=True)
-
-    return dataloader
-
-
 def make_data():
     # create the annotations file
     make_annotations()
 
-    # create the dataloaders
-    train = create_dataloader(annotations="data/train.csv")
+    # create the dataset
+    dataset = CustomImageDataset(annotations_file="data/data.csv")
 
-    test = create_dataloader(annotations="data/test.csv")
-
-    return train, test
+    return dataset
 
 
 # python main block

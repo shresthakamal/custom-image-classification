@@ -11,8 +11,10 @@ class NNModel(nn.Module):
         self.linear_relu_stack = nn.Sequential(
             nn.Linear(config.IMAGE_C * config.IMAGE_W * config.IMAGE_H, 512),
             nn.ReLU(),
+            nn.Dropout(config.dropout),
             nn.Linear(512, 64),
             nn.ReLU(),
+            nn.Dropout(config.dropout),
             nn.Linear(64, 2),
         )
 
