@@ -15,3 +15,6 @@ inference:
 
 app:
 	python -m api.app
+
+ngrok:
+	ngrok http 5000
