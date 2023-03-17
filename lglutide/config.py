@@ -1,11 +1,12 @@
 SEED = 42
 BATCHSIZE = 4
-EPOCHS = 5
+EPOCHS = 3
 IMAGE_C = 3
-IMAGE_W = 28
-IMAGE_H = 28
+IMAGE_W = 512
+IMAGE_H = 512
 LEARNING_RATE = 0.001
-INFERENCE_MODEL = "lglutide/models/model_5.pth"
+INFERENCE_MODEL = "lglutide/models/model_0.pth"
+WEIGHT_DECAY = 0.001
 download_model = False
 k_fold = 5
 dropout = 0.2

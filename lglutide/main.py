@@ -23,12 +23,15 @@ if __name__ == "__main__":
 
     model = NNModel()
     model.to(device)
+
     print(
         f"Number of model parameters: {sum(p.numel() for p in model.parameters())/1000000} M"
     )
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=config.LEARNING_RATE)
+    optimizer = optim.Adam(
+        model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY
+    )
 
     dataset = make_data()
     skf = StratifiedKFold(
@@ -175,7 +178,7 @@ if __name__ == "__main__":
             writer.add_scalar("F1 Score", f1, epoch)
 
             average_accuracy += accuracy
-            average_f1score = f1
+            average_f1score += f1
 
             # save the model based on folds and epochs
             torch.save(model.state_dict(), f"lglutide/models/model_{fold}.pth")
