@@ -8,6 +8,8 @@ from lglutide.nn import NNModel
 
 
 def predict(image):
+    check_if_model_exists()
+
     # set the device to GPU if available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -17,27 +19,22 @@ def predict(image):
     image = image.reshape(-1, config.IMAGE_C, config.IMAGE_H, config.IMAGE_W)
 
     model = NNModel()
+    model = model.to(device)
+    model.load_state_dict(torch.load(config.INFERENCE_MODEL))
 
     image = image.to(device)
-    model = model.to(device)
 
-    model.load_state_dict(torch.load(config.INFERENCE_MODEL))
     # set the model to evaluation mode
     model.eval()
 
     # get the predictions
     with torch.no_grad():
-        preds = model(image)
-
-    print(preds)
-
-    # convert the predictions to probabilities
-    probs = torch.softmax(preds, dim=1)
-
+        probas = model(image)
+    print(probas)
     # detach the tensor from the graph
-    probs = probs.detach().cpu().numpy()[0]
+    probas = probas.detach().cpu().numpy()[0]
 
-    return probs
+    return probas
 
 
 def check_if_model_exists():

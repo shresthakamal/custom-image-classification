@@ -59,6 +59,9 @@ All the training arguments and hyperparameters are specified in the `lglutide/co
 make train
 ```
 
+
+Experimental Tracking sheet, [here](https://docs.google.com/spreadsheets/d/1DmFIhJwqj8ycNwWOrjpQC0-0WqSbJ-j2mNQz9H3F-Zc/edit?usp=sharing).
+
 ## Running Inference
 
 - To run inference make sure all the saved model checkpoints are in `lglutide/models` folder

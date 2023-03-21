@@ -6,6 +6,7 @@ from flask import render_template, request
 from PIL import Image
 from torchvision.transforms import ToTensor
 
+from lglutide.nn import NNModel
 from lglutide.predict import predict as engine_predict
 
 
