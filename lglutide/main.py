@@ -1,3 +1,7 @@
+import os
+from datetime import datetime
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import torch
@@ -8,10 +12,14 @@ from sklearn.model_selection import StratifiedKFold
 from torch.utils.tensorboard import SummaryWriter
 
 from lglutide import config
+from lglutide.architectures.densenet import DenseNet121
+from lglutide.architectures.resnet import resnet34
 from lglutide.make_data import make_data
-from lglutide.nn import NNModel
 
 if __name__ == "__main__":
+    # get the current time
+    current_time = datetime.now().strftime("%b%d_%H-%M")
+
     # set random seed for reproducibility
     torch.manual_seed(config.SEED)
     np.random.seed(config.SEED)
@@ -21,7 +29,8 @@ if __name__ == "__main__":
     # set the device to GPU if available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    model = NNModel()
+    model = DenseNet121(num_classes=2, grayscale=False)
+    # model = resnet34(num_classes=2)
     model.to(device)
 
     print(
@@ -29,6 +38,10 @@ if __name__ == "__main__":
     )
 
     criterion = nn.CrossEntropyLoss()
+
+    # optimizer = optim.SGD(
+    #     model.parameters(), lr=config.LEARNING_RATE, momentum=config.MOMEMTUM)
+
     optimizer = optim.Adam(
         model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY
     )
@@ -60,16 +73,18 @@ if __name__ == "__main__":
             dataset, batch_size=config.BATCHSIZE, sampler=test_subsampler
         )
 
-        model.zero_grad()
-
-        # set tensorboard writer to save at runs directory based on folds and epochs
-        writer = SummaryWriter(f"lglutide/runs/fold_{fold}")
+        # set tensorboard writer to save at runs directory based on folds and epochs and time
+        writer = SummaryWriter(
+            f"lglutide/runs/runs_{config.experiment}_{current_time}/fold_{fold}"
+        )
 
         average_accuracy = 0
         average_f1score = 0
 
         for epoch in range(config.EPOCHS):  # loop over the dataset multiple times
             print("---Epoch {}/{}---".format(epoch + 1, config.EPOCHS))
+
+            model.zero_grad()
 
             # MODEL TRAINING
             model.train()
@@ -98,25 +113,21 @@ if __name__ == "__main__":
 
                 training_loss.append(loss.item())
 
-                running_loss += loss.item()
+                # running_loss += loss.item()
 
-                # gradient accumulation in every 10 mini batch iterations
-                if i % config.gradient_accumulate_per_mini_batch == 0:
-                    loss.backward()
-                    optimizer.step()
+                # # gradient accumulation in every 10 mini batch iterations
+                # if i % config.gradient_accumulate_per_mini_batch == 0:
+                loss.backward()
+                optimizer.step()
 
-                # print loss in every 50 mini batch iterations
-                if i % 50 == 0:
-                    print(
-                        "[{}, {}] loss: {}".format(epoch + 1, i + 1, running_loss / 50)
-                    )
+                print("[{}, {}] loss: {}".format(epoch + 1, i + 1, loss.item()))
 
-                    # plot the training loss only per fold
-                    writer.add_scalar(
-                        "Training Loss", running_loss / 50, epoch * len(trainloader) + i
-                    )
+                # plot the training loss only per fold per epoch
+                writer.add_scalar(
+                    "Training Loss", loss.item(), epoch * len(trainloader) + i
+                )
 
-                    running_loss = 0.0
+                # running_loss = 0.0
 
             # MODEL EVALUATION
             model.eval()
@@ -153,7 +164,7 @@ if __name__ == "__main__":
                     true.append(labels.detach().cpu().numpy())
                     preds.append(predicted.detach().cpu().numpy())
 
-            # plot training and testing loss in the same figure
+            # plot the mean training loss and testing loss per epoch in the same graph
             writer.add_scalars(
                 "Loss",
                 {
@@ -181,12 +192,15 @@ if __name__ == "__main__":
             average_f1score += f1
 
             # save the model based on folds and epochs
-            torch.save(model.state_dict(), f"lglutide/models/model_{fold}.pth")
+            torch.save(
+                model.state_dict(),
+                f"lglutide/models/{config.experiment}_{current_time}_fold_{fold}_epoch_{epoch}.pth",
+            )
 
         training_stats[fold]["accuracy"] = average_accuracy / config.EPOCHS
         training_stats[fold]["f1_score"] = average_f1score / config.EPOCHS
 
-        writer.close()
+    writer.close()
 
     # create a dataframe to store the training stats
     df_stats = pd.DataFrame(data=training_stats)
