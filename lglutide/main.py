@@ -29,8 +29,8 @@ if __name__ == "__main__":
     # set the device to GPU if available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    model = DenseNet121(num_classes=2, grayscale=False)
-    # model = resnet34(num_classes=2)
+    # model = DenseNet121(num_classes=2, grayscale=False)
+    model = resnet34(num_classes=2)
     model.to(device)
 
     print(

@@ -23,8 +23,6 @@ def augmentations(a_path, u_path):
                 transforms.Pad(padding=padding)(orig_img) for padding in (3, 10, 30, 50)
             ]
 
-            gray_img = transforms.Grayscale()(orig_img)
-
             jitter = transforms.ColorJitter(brightness=0.5, hue=0.3)
             jitted_imgs = [jitter(orig_img) for _ in range(4)]
 
@@ -93,7 +91,6 @@ def augmentations(a_path, u_path):
             # combine all the augmented images into a single list
             augmented_imgs = (
                 padded_imgs
-                + [gray_img]
                 + jitted_imgs
                 + blurred_imgs
                 + perspective_imgs
@@ -116,6 +113,9 @@ def augmentations(a_path, u_path):
 
             # save padded images to a folder
             for i, augmented_img in enumerate(augmented_imgs):
+                # print the shape of PIL image
+                # print(augmented_img.size, augmented_img.mode)
+
                 augmented_img.save(img_path[:-5] + f"_aug_{i}.jpeg")
 
     # print number of images after augmentation

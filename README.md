@@ -59,17 +59,31 @@ All the training arguments and hyperparameters are specified in the `lglutide/co
 make train
 ```
 
-
 Experimental Tracking sheet, [here](https://docs.google.com/spreadsheets/d/1DmFIhJwqj8ycNwWOrjpQC0-0WqSbJ-j2mNQz9H3F-Zc/edit?usp=sharing).
 
-## Running Inference
+Checkpoints are uploaded [here](https://1drv.ms/f/s!Aprh41uH8yH1gcgVAU4c6iVMpqxP2Q?e=W6YBo3).
+
+
+## Inference
+### Running Inference through CLI
 
 - To run inference make sure all the saved model checkpoints are in `lglutide/models` folder
 
-- Look into the `lglutide/config` file to check which checkpoint is being used for inference.
+- Make changes to the `lglutide/config` file to specify which checkpoint to use for the inference. _Refer to the experimental tracking sheet and the checkpoints folder for the best performing model._
 
 - run inference using the following command and select an image to run inference on. eg: `data/A/A1.jpeg`
 
 ```python
 make inference
 ```
+    - This will prompt you to type the image path.
+
+### Running Inference through APP
+
+- To run the inference through UI application, execute the following command:
+
+```python
+make app
+```
+
+- You can now open [http://127.0.0.1:5000/](http://127.0.0.1:5000/) on your browser to make the inferences

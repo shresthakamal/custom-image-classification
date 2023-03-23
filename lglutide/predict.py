@@ -1,3 +1,5 @@
+import time
+
 import torch
 import torchvision.transforms as transforms
 from torchvision.io import read_image
@@ -5,9 +7,13 @@ from torchvision.transforms import ToTensor
 
 from lglutide import config
 from lglutide.architectures.densenet import DenseNet121
+from lglutide.architectures.resnet import resnet34
 
 
 def predict(image):
+    # start the timer
+    start = time.time()
+
     check_if_model_exists()
 
     # set the device to GPU if available
@@ -19,6 +25,8 @@ def predict(image):
     image = image.reshape(-1, config.IMAGE_C, config.IMAGE_H, config.IMAGE_W)
 
     model = DenseNet121(num_classes=2, grayscale=False)
+    # model = resnet34(num_classes=2)
+
     model = model.to(device)
     model.load_state_dict(torch.load(config.INFERENCE_MODEL))
 
@@ -30,11 +38,11 @@ def predict(image):
     # get the predictions
     with torch.no_grad():
         probas = model(image)
-    print(probas)
+
     # detach the tensor from the graph
     probas = probas.detach().cpu().numpy()[0]
 
-    return probas
+    return probas, time.time() - start
 
 
 def check_if_model_exists():
@@ -62,11 +70,7 @@ def check_if_model_exists():
 if __name__ == "__main__":
     check_if_model_exists()
 
-    # load the model in memory and get the predictions
-
     img_path = input("Enter the image path: ")
     image = read_image(img_path)
-
-    print(image, image.shape, image.dtype)
 
     predict(image)
