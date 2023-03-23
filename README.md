@@ -70,6 +70,8 @@ Checkpoints are uploaded [here](https://1drv.ms/f/s!Aprh41uH8yH1gcgVAU4c6iVMpqxP
 - To run inference make sure all the saved model checkpoints are in `lglutide/models` folder
 
 - Make changes to the `lglutide/config` file to specify which checkpoint to use for the inference. _Refer to the experimental tracking sheet and the checkpoints folder for the best performing model._
+    > Currently we are using DenseNet121 architecture for inference.
+    > If you are changing the backbone of the model i.e. from Densenet121 to Resnet, you need to make changes on `lglutide/predict.py` module line: `27` to specify the same.
 
 - run inference using the following command and select an image to run inference on. eg: `data/A/A1.jpeg`
 
