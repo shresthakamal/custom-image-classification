@@ -76,7 +76,7 @@ Checkpoints are uploaded [here](https://1drv.ms/f/s!Aprh41uH8yH1gcgVAU4c6iVMpqxP
 ```python
 make inference
 ```
-    - This will prompt you to type the image path.
+- This will prompt you to type the image path, **remeber the root foler before specifying the path**, eg: `data/A/A1.jpeg`
 
 ### Running Inference through APP
 
