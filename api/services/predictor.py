@@ -33,5 +33,5 @@ def predict():
         image=uploaded_file.filename,
         U=round(probas[0] * 100, 2),
         A=round(probas[1] * 100, 2),
-        time_taken=time_taken,
+        time_taken=round(time_taken, 3),
     )
