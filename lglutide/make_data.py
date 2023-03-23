@@ -3,11 +3,11 @@ import os
 
 import pandas as pd
 import torchvision.transforms as transforms
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 from torchvision.io import read_image
-from torchvision.transforms import ToTensor
 
 from lglutide import config
+from lglutide.utils.augmentations import augmentations
 
 
 def creat_annotations(a_path, u_path):
@@ -43,7 +43,6 @@ class CustomImageDataset(Dataset):
         self.img_labels = self.img_labels.iloc[:, 1]
 
         self.transform = transforms.ToTensor()
-
         self.target_transform = target_transform
 
     def __len__(self):
@@ -80,6 +79,9 @@ def make_annotations():
 
 
 def make_data():
+    if config.augmentation:
+        augmentations(a_path="data/A/", u_path="data/U/")
+
     # create the annotations file
     make_annotations()
 

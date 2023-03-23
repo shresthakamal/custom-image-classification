@@ -13,3 +13,4 @@ MOMEMTUM = 0.9
 dropout = 0.2
 gradient_accumulate_per_mini_batch = 10
 experiment = 4
+augmentation = True
