@@ -1,20 +1,14 @@
 requirements:
-	poetry export -f requirements.txt --output requirements.txt --without-hashes
+	poetry export -f requirements.txt --output requirements.txt
 
 install:
 	pip install -r requirements.txt
 
-train:
-	python -m lglutide.main
-
 tensorboard:
 	tensorboard --logdir=lglutide/runs
 
-inference:
-	python -m lglutide.predict
-
 app:
-	python -m api.app
+	python3 -m api.app
 
 ngrok:
 	ngrok http 5000

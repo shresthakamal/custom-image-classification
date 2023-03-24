@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 from pathlib import Path
@@ -11,55 +12,51 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import StratifiedKFold
 from torch.utils.tensorboard import SummaryWriter
 
-from lglutide import config
-from lglutide.architectures.densenet import DenseNet121
-from lglutide.architectures.resnet import resnet34
 from lglutide.make_data import make_data
+from lglutide.utils.logger import logger
+from lglutide.utils.options import argument_parser
 
-if __name__ == "__main__":
+
+def train(**kwargs):
     # get the current time
-    current_time = datetime.now().strftime("%b%d_%H-%M")
+    start = datetime.now().strftime("%b%d_%H:%M")
 
     # set random seed for reproducibility
-    torch.manual_seed(config.SEED)
-    np.random.seed(config.SEED)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
+    torch.manual_seed(kwargs["seed"])
+    np.random.seed(kwargs["seed"])
 
-    # set the device to GPU if available
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if kwargs["gpu"] and torch.cuda.is_available():
+        device = torch.device("cuda")
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+    else:
+        device = torch.device("cpu")
 
-    # model = DenseNet121(num_classes=2, grayscale=False)
-    model = resnet34(num_classes=2)
+    model = kwargs["model"](**kwargs["model_params"])
     model.to(device)
-
-    print(
+    logger.info(
         f"Number of model parameters: {sum(p.numel() for p in model.parameters())/1000000} M"
     )
 
     criterion = nn.CrossEntropyLoss()
-
-    # optimizer = optim.SGD(
-    #     model.parameters(), lr=config.LEARNING_RATE, momentum=config.MOMEMTUM)
-
     optimizer = optim.Adam(
-        model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY
+        model.parameters(), lr=kwargs["lr"], weight_decay=kwargs["decay"]
     )
 
-    dataset = make_data()
+    dataset = make_data(**kwargs)
     skf = StratifiedKFold(
-        n_splits=config.k_fold, shuffle=True, random_state=config.SEED
+        n_splits=kwargs["fold"], shuffle=True, random_state=kwargs["seed"]
     )
 
-    print("Training Started ...\n")
+    logger.info("Training Started ...")
 
     training_stats = {}
 
     for fold, (train_ids, test_ids) in enumerate(
         skf.split(dataset, dataset.img_labels)
     ):
-        print(f"Fold: {fold}")
-        print(f"========")
+        logger.info(f"Fold: {fold}")
+        logger.info(f"========")
 
         training_stats[fold] = {}
 
@@ -67,22 +64,22 @@ if __name__ == "__main__":
         test_subsampler = torch.utils.data.SubsetRandomSampler(test_ids)
 
         trainloader = torch.utils.data.DataLoader(
-            dataset, batch_size=config.BATCHSIZE, sampler=train_subsampler
+            dataset, batch_size=kwargs["batch"], sampler=train_subsampler
         )
         testloader = torch.utils.data.DataLoader(
-            dataset, batch_size=config.BATCHSIZE, sampler=test_subsampler
+            dataset, batch_size=kwargs["batch"], sampler=test_subsampler
         )
 
         # set tensorboard writer to save at runs directory based on folds and epochs and time
         writer = SummaryWriter(
-            f"lglutide/runs/runs_{config.experiment}_{current_time}/fold_{fold}"
+            f"""lglutide/runs/{kwargs["experiment"]}/{start}/fold_{fold}"""
         )
 
         average_accuracy = 0
         average_f1score = 0
 
-        for epoch in range(config.EPOCHS):  # loop over the dataset multiple times
-            print("---Epoch {}/{}---".format(epoch + 1, config.EPOCHS))
+        for epoch in range(kwargs["epochs"]):  # loop over the dataset multiple times
+            logger.info("---Epoch {}/{}---".format(epoch + 1, kwargs["epochs"]))
 
             model.zero_grad()
 
@@ -97,7 +94,7 @@ if __name__ == "__main__":
 
                 # reshape the inputs to 4D tensor
                 inputs = inputs.reshape(
-                    -1, config.IMAGE_C, config.IMAGE_W, config.IMAGE_H
+                    -1, kwargs["channel"], kwargs["width"], kwargs["height"]
                 )
 
                 # zero the parameter gradients
@@ -116,11 +113,11 @@ if __name__ == "__main__":
                 # running_loss += loss.item()
 
                 # # gradient accumulation in every 10 mini batch iterations
-                # if i % config.gradient_accumulate_per_mini_batch == 0:
+                # if i % kwargs["grad_accumulate"] == 0:
                 loss.backward()
                 optimizer.step()
 
-                print("[{}, {}] loss: {}".format(epoch + 1, i + 1, loss.item()))
+                logger.info("[{}, {}] loss: {}".format(epoch + 1, i + 1, loss.item()))
 
                 # plot the training loss only per fold per epoch
                 writer.add_scalar(
@@ -141,7 +138,7 @@ if __name__ == "__main__":
                     images, labels = data
 
                     images = images.reshape(
-                        -1, config.IMAGE_C, config.IMAGE_H, config.IMAGE_W
+                        -1, kwargs["channel"], kwargs["height"], kwargs["width"]
                     )
                     images, labels = images.to(device), labels.to(device)
 
@@ -180,33 +177,53 @@ if __name__ == "__main__":
 
             accuracy = 100 * correct / total
             # print the accuracy of the network
-            print("\nAccuracy PE: %d %%" % (100 * correct / total))
+            logger.info("Accuracy PE: %d %%" % (100 * correct / total))
             writer.add_scalar("Accuracy", accuracy, epoch)
 
             f1 = f1_score(true, preds, average="weighted")
             # print the F1 score of the network
-            print(f"""F1 Score PE: {f1}\n""")
+            logger.info(f"""F1 Score PE: {f1}""")
             writer.add_scalar("F1 Score", f1, epoch)
 
             average_accuracy += accuracy
             average_f1score += f1
 
-            # save the model based on folds and epochs
-            torch.save(
-                model.state_dict(),
-                f"lglutide/models/{config.experiment}_{current_time}_fold_{fold}_epoch_{epoch}.pth",
-            )
+        exp = Path(f"""lglutide/models/{kwargs["experiment"]}""")
 
-        training_stats[fold]["accuracy"] = average_accuracy / config.EPOCHS
-        training_stats[fold]["f1_score"] = average_f1score / config.EPOCHS
+        if not os.path.exists(exp):
+            os.makedirs(exp)
+
+        torch.save(model.state_dict(), Path(exp, f"{start}_fold_{fold}.pth"))
+
+        training_stats[fold]["accuracy"] = average_accuracy / kwargs["epochs"]
+        training_stats[fold]["f1_score"] = average_f1score / kwargs["epochs"]
 
     writer.close()
+
+    config_path = Path(exp, f"""config.json""")
+    with open(config_path, "w") as f:
+        del kwargs["model"]
+        kwargs["checkpoint"] = Path(exp, f"{start}_fold_{fold}.pth" "").as_posix()
+        kwargs["config"] = config_path.as_posix()
+        json.dump(kwargs, f, indent=4)
 
     # create a dataframe to store the training stats
     df_stats = pd.DataFrame(data=training_stats)
     df_stats = df_stats.transpose()
     df_stats.to_csv("lglutide/training_stats.csv", index=False)
 
-    print(df_stats)
+    logger.info(f"Training Stats:\n{df_stats}")
 
-    print("Finished Training")
+    logger.info("Finished Training")
+
+
+def run():
+    args = argument_parser()
+
+    logger.info(args)
+
+    train(**args)
+
+
+if __name__ == "__main__":
+    run()

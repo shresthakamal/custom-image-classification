@@ -6,8 +6,9 @@ import torchvision.transforms as transforms
 from torch.utils.data import Dataset
 from torchvision.io import read_image
 
-from lglutide import config
 from lglutide.utils.augmentations import augmentations
+from lglutide.utils.logger import logger
+from lglutide.utils.options import argument_parser
 
 
 def creat_annotations(a_path, u_path):
@@ -15,7 +16,7 @@ def creat_annotations(a_path, u_path):
     a_images = glob.glob(a_path + "*.jpeg")
     u_images = glob.glob(u_path + "*.jpeg")
 
-    print(f"Image in A: {len(a_images)}, Images in U: {len(u_images)}")
+    logger.info(f"Image in A: {len(a_images)}, Images in U: {len(u_images)}")
 
     # create the annotations file
     annotations = pd.DataFrame(columns=["image", "label"])
@@ -33,11 +34,14 @@ def creat_annotations(a_path, u_path):
 
     annotations.to_csv("data/data.csv", index=False)
 
-    print("Annotations file created!")
+    logger.info("Annotations file created!")
 
 
 class CustomImageDataset(Dataset):
-    def __init__(self, annotations_file, transform=None, target_transform=None):
+    def __init__(
+        self, annotations_file, transform=None, target_transform=None, kwargs=None
+    ):
+        self.kwargs = kwargs
         self.img_labels = pd.read_csv(annotations_file)
         self.image_path = self.img_labels.iloc[:, 0]
         self.img_labels = self.img_labels.iloc[:, 1]
@@ -53,7 +57,7 @@ class CustomImageDataset(Dataset):
 
         image = read_image(img_path)
 
-        image = transforms.Resize((config.IMAGE_W, config.IMAGE_H))(image)
+        image = transforms.Resize((self.kwargs["width"], self.kwargs["height"]))(image)
 
         label = self.img_labels.iloc[idx]
 
@@ -75,22 +79,23 @@ def make_annotations():
         # if not, create the annotations file
         creat_annotations(a_path="data/A/", u_path="data/U/")
     else:
-        print("Annotations file already exists!")
+        logger.info("Annotations file already exists!")
 
 
-def make_data():
-    if config.augmentation:
+def make_data(**kwargs):
+    if kwargs["aug"]:
         augmentations(a_path="data/A/", u_path="data/U/")
 
     # create the annotations file
     make_annotations()
 
     # create the dataset
-    dataset = CustomImageDataset(annotations_file="data/data.csv")
+    dataset = CustomImageDataset(annotations_file="data/data.csv", kwargs=kwargs)
 
     return dataset
 
 
 # python main block
 if __name__ == "__main__":
-    make_data()
+    args = argument_parser()
+    make_data(**args)

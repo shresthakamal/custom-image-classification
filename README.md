@@ -1,4 +1,4 @@
-# lglut-classify
+ lglut-classify
 
 ## Build Instructions
 
@@ -50,14 +50,39 @@ Before installing the project dependencies, make sure you are working on a virtu
 ```python
 make install
 ```
+or
+```python
+pip install -r requirements.txt
+```
 
 ## Training the model
 
 All the training arguments and hyperparameters are specified in the `lglutide/config` module.
 
 ```python
-make train
+python3 -m lglutide.main --experiment <experiment_no> --epochs <EPOCHS> --batch <BATCH>
 ```
+eg:
+```python
+python3 -m lglutide.main --experiment 6 --epochs 1 --fold 2 --batch 64
+```
+**Training Flags**:
+
+- Seed (`int`)
+- Training Batch Size (`int`)
+- Training Epochs (`int`)
+- Image Channel (`int`)
+- Image Width (`int`)
+- Image Height (`int`)
+- Learning Rate (`float`)
+- Weight Decay Value  (`float`)
+- Gradient Accumulation (`int`)
+- Dropout (`float`)
+- Number of k-folds (`int`)
+- Experiment No (`int`)
+- Data Augmentation (`bool`)
+- Usage of GPU (`bool`)
+- `--densenet`(default) or `--resnet` to specify training model  (`bool`)
 
 Experimental Tracking sheet, [here](https://docs.google.com/spreadsheets/d/1DmFIhJwqj8ycNwWOrjpQC0-0WqSbJ-j2mNQz9H3F-Zc/edit?usp=sharing).
 
@@ -65,27 +90,58 @@ Checkpoints are uploaded [here](https://1drv.ms/f/s!Aprh41uH8yH1gcgVAU4c6iVMpqxP
 
 
 ## Inference
-### Running Inference through CLI
 
-- To run inference make sure all the saved model checkpoints are in `lglutide/models` folder
+All the inferences are made through `config.json` files which contains the details about the trained model checkpoints, hyperparameters used to train the model, model names and more.
 
-- Make changes to the `lglutide/config` file to specify which checkpoint to use for the inference. _Refer to the experimental tracking sheet and the checkpoints folder for the best performing model._
-    > Currently we are using DenseNet121 architecture for inference.
-    > If you are changing the backbone of the model i.e. from Densenet121 to Resnet, you need to make changes on `lglutide/predict.py` module line: `27` to specify the same.
+The `config.json` file generated after each training can be found in: ```lglutide/models/<experiment_no>/config.json```
 
-- run inference using the following command and select an image to run inference on. eg: `data/A/A1.jpeg`
+eg:
+```lglutide/models/6/config.json```
+
+
+
+### 1. Running Inference through CLI
+
+- To run inference from command line MAKE SURE you have the following architecture:
+    ```
+      ROOT
+        └──lglutide
+            └── models
+                └── <experiment_no>         # Training Experiment No
+                    ├── config.json         # Training Hyperamaters
+                    └── <saved_model>.pth   # Trained model checkpoint
+    ```
+
+-   Download the checkpoints corresponding to a specific experiment and run inference.
+
+- Run inference using the following command:
 
 ```python
-make inference
+python3 -m lglutide.predict --config <CONFIG FILE PATH="lglutide/models/<experiment_no>/config.json">
+```
+eg:
+```python
+python3 -m lglutide.predict --config "lglutide/models/6/config.json"
 ```
 - This will prompt you to type the image path, **remeber the root foler before specifying the path**, eg: `data/A/A1.jpeg`
 
-### Running Inference through APP
 
-- To run the inference through UI application, execute the following command:
+### 2. Running Inference through APP
+
+- To run the inference through UI application, make sure you specify the config file on **`.env`** file like shown below:
+```python
+CONFIG="lglutide/models/<experiment_no>/config.json"
+```
+eg:
+```python
+CONFIG="lglutide/models/6/config.json"
+```
+
+
+- Now execute the following command to start the application:
 
 ```python
-make app
+python3 -m api.app
 ```
 
 - You can now open [http://127.0.0.1:5000/](http://127.0.0.1:5000/) on your browser to make the inferences

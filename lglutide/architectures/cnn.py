@@ -48,7 +48,9 @@ class ConvNet(torch.nn.Module):
         out = self.conv2(out)
         out = F.relu(out)
         out = self.pool2(out)
+
         logits = self.linear1(out.view(-1, 256 * 64 * 64))
+
         probas = F.softmax(logits, dim=1)
 
         return probas
