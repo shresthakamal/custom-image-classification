@@ -222,6 +222,9 @@ def run():
 
     logger.info(args)
 
+    # set CUDA VISIBLE DEVICES
+    os.environ["CUDA_VISIBLE_DEVICES"] = args["gpu"]
+
     train(**args)
 
 

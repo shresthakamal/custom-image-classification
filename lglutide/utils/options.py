@@ -93,7 +93,7 @@ def argument_parser():
         type=bool,
     )
     parser.add_argument(
-        "-gpu", "--gpu", help="use GPU", required=False, default=True, type=bool
+        "-gpu", "--gpu", help="use GPU", required=False, default=0, type=str
     )
     parser.add_argument(
         "-densenet", "--densenet", help="Select Model DenseNet121", action="store_true"
