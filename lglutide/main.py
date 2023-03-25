@@ -19,18 +19,20 @@ from lglutide.utils.options import argument_parser
 
 def train(**kwargs):
     # get the current time
-    start = datetime.now().strftime("%b%d_%H:%M")
+    start = datetime.now().strftime("%b%d_%H_%M")
 
     # set random seed for reproducibility
     torch.manual_seed(kwargs["seed"])
     np.random.seed(kwargs["seed"])
 
-    if kwargs["gpu"] and torch.cuda.is_available():
+    if torch.cuda.is_available():
         device = torch.device("cuda")
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
     else:
         device = torch.device("cpu")
+
+    logger.info(f"Device: {device}")
 
     model = kwargs["model"](**kwargs["model_params"])
     model.to(device)
@@ -207,11 +209,8 @@ def train(**kwargs):
         kwargs["config"] = config_path.as_posix()
         json.dump(kwargs, f, indent=4)
 
-    # create a dataframe to store the training stats
     df_stats = pd.DataFrame(data=training_stats)
     df_stats = df_stats.transpose()
-    df_stats.to_csv("lglutide/training_stats.csv", index=False)
-
     logger.info(f"Training Stats:\n{df_stats}")
 
     logger.info("Finished Training")

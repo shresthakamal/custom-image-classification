@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from lglutide import config
-
 
 class NNModel(nn.Module):
     def __init__(self):

@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from lglutide import config
-
 
 # define a convolutional neural network
 class ConvNet(torch.nn.Module):

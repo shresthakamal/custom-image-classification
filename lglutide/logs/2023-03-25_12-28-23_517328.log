@@ -1,0 +1,3 @@
+2023-03-25 12:28:28 | INFO | __main__:<module>:78) - data/A/A1.jpeg
+2023-03-25 12:28:28 | INFO | __main__:check_if_model_exists:16) - Model found. Loading model...
+2023-03-25 12:28:32 | INFO | __main__:<module>:91) - (Prediction, Time Taken): (array([6.784895e-09, 1.000000e+00], dtype=float32), 4.031752586364746)

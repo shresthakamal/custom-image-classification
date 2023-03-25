@@ -1,0 +1,9 @@
+2023-03-25 12:29:40 | INFO | api.services.predictor:predict:37) - config: lglutide/models/6/config.json
+2023-03-25 12:29:40 | INFO | lglutide.predict:check_if_model_exists:16) - Model found. Loading model...
+2023-03-25 12:30:04 | INFO | api.services.predictor:predict:37) - config: lglutide/models/6/config.json
+2023-03-25 12:30:04 | INFO | lglutide.predict:check_if_model_exists:16) - Model found. Loading model...
+2023-03-25 12:30:06 | INFO | api.services.predictor:predict:56) - Prediction: [1.1421427e-04 9.9988580e-01], Time Taken: 25.06273579597473
+2023-03-25 12:30:06 | INFO | api.services.predictor:predict:56) - Prediction: [1.1421427e-04 9.9988580e-01], Time Taken: 1.9937784671783447
+2023-03-25 12:30:13 | INFO | api.services.predictor:predict:37) - config: lglutide/models/6/config.json
+2023-03-25 12:30:13 | INFO | lglutide.predict:check_if_model_exists:16) - Model found. Loading model...
+2023-03-25 12:30:14 | INFO | api.services.predictor:predict:56) - Prediction: [1.1421427e-04 9.9988580e-01], Time Taken: 0.2805461883544922
