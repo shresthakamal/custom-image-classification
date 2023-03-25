@@ -5,41 +5,55 @@
 Make sure the folders `A` and `U` containing images are place inside `data` folder like shown below:
 
 ```
-.
-├── data                        # contains two folders: A, U containing images
-│   ├── A
-│   │   ├── A10.jpeg
-│   │   ├── A1.jpeg
-│   │   └──A2.jpeg
-│   ├── test.csv
-│   ├── train.csv
-│   └── U
-│       ├── U10.jpeg
-│       ├── U1-1.jpeg
-│       └── U1-2.jpeg
-├── lglutide                    # Contains all the modules for training and testing
-│   ├── config.py               # Arguments and Hyperparameters
-│   ├── main.py                 # Training and Validation Pipeline
-│   ├── make_data.py            # Prepare Data
-│   ├── models                  # Saved Model Checkpoints
-│   │   ├── model_0.pth
-│   │   ├── model_1.pth
-│   │   ├── model_2.pth
-│   │   ├── model_3.pth
-│   │   ├── model_4.pth
-│   │   ├── model_5.pth
-│   │   ├── model_6.pth
-│   │   ├── model_7.pth
-│   │   ├── model_8.pth
-│   │   └── model_9.pth
-│   ├── nn.py                   # Neural Network Architecture
-│   ├── predict.py              # Inference Pipeline
-├── Makefile                    # make commands for ease developments
-├── poetry.lock
-├── pyproject.toml              # Project Dependencies
-├── README.md
-├── requirements.txt
-└── tests
+       ROOT
+        ├── api
+        │   ├── app.py
+        │   ├── routes.py
+        │   ├── services
+        │   │   └── predictor.py
+        │   ├── static
+        │   │   └── banner.jpg
+        │   └── templates
+        │       ├── index.html
+        │       └── predict.html
+        ├── data
+        │   ├── A
+        │   │   ├── A8.jpeg
+        │   │   └── A9.jpeg
+        │   ├── data.csv
+        │   └── U
+        │       ├── U8.jpeg
+        │       └── U9.jpeg
+        ├── lglutide
+        │   ├── architectures
+        │   │   ├── alexnet.py
+        │   │   ├── cnn.py
+        │   │   ├── densenet.py
+        │   │   ├── nn.py
+        │   │   └── resnet.py
+        │   ├── dispatcher.py
+        │   ├── logs
+        │   ├── main.py
+        │   ├── make_data.py
+        │   ├── models
+        │   │   └── 8
+        │   │       ├── config.json
+        │   │       └── Mar25_08_30_fold_4.pth
+        │   ├── predict.py
+        │   ├── runs
+        │   └── utils
+        │       ├── augmentations.py
+        │       ├── logger.py
+        │       └── options.py
+        ├── Makefile
+        ├── notebooks
+        │   └── playground.ipynb
+        ├── poetry.lock
+        ├── pyproject.toml
+        ├── README.md
+        ├── requirements.txt
+        └── tests
+            └── test_lglutide.py
 
 ```
 
