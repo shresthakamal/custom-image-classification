@@ -93,7 +93,7 @@ Checkpoints are uploaded [here](https://1drv.ms/f/s!Aprh41uH8yH1gcgVAU4c6iVMpqxP
 
 All the inferences are made through `config.json` files which contains the details about the trained model checkpoints, hyperparameters used to train the model, model names and more.
 
-The `config.json` file generated after each training can be found in: ```lglutide/models/<experiment_no>/config.json```
+The `config.json` file generated after each training can be found in: ```lglutide/models/<experiment_no>/config.json```, depending on the experiment that we ran.
 
 eg:
 ```lglutide/models/6/config.json```
@@ -117,7 +117,7 @@ eg:
 - Run inference using the following command:
 
 ```python
-python3 -m lglutide.predict --config <CONFIG FILE PATH="lglutide/models/<experiment_no>/config.json">
+python3 -m lglutide.predict --config <CONFIG FILE PATH>
 ```
 eg:
 ```python
@@ -128,7 +128,7 @@ python3 -m lglutide.predict --config "lglutide/models/6/config.json"
 
 ### 2. Running Inference through APP
 
-- To run the inference through UI application, make sure you specify the config file on **`.env`** file like shown below:
+- To run the inference through UI application, make sure you specify the `config.json` file on **`.env`** file (found in root directory) like shown below:
 ```python
 CONFIG="lglutide/models/<experiment_no>/config.json"
 ```
