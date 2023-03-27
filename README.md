@@ -103,6 +103,19 @@ Experimental Tracking sheet, [here](https://docs.google.com/spreadsheets/d/1DmFI
 Checkpoints are uploaded [here](https://1drv.ms/f/s!Aprh41uH8yH1gcgVAU4c6iVMpqxP2Q?e=W6YBo3).
 
 
+## Evaluating the Training metrics
+
+The training logs like training loss, validation/test loss, F1 scores for individual epochs are all recorded using `tensorboard` writers. All the event logs are recorded under `runs/<experiment_no>`. To view the metrics, execute the following command:
+
+```python
+tensorboard --logdir=lglutide/runs/<experiment_no>
+```
+eg:
+```python
+tensorboard --logdir=lglutide/runs/6
+```
+
+
 ## Inference
 
 All the inferences are made through `config.json` files which contains the details about the trained model checkpoints, hyperparameters used to train the model, model names and more.

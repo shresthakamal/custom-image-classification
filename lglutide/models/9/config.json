@@ -1,0 +1,27 @@
+{
+    "seed": 1,
+    "batch": 64,
+    "epochs": 5,
+    "channel": 3,
+    "width": 256,
+    "height": 256,
+    "lr": 0.0001,
+    "decay": 0.01,
+    "grad_accumulate": 10,
+    "dropout": 0.2,
+    "fold": 3,
+    "experiment": 9,
+    "aug": false,
+    "download": false,
+    "gpu": "7",
+    "densenet": false,
+    "resnet": false,
+    "vgg": true,
+    "config": "lglutide/models/9/config.json",
+    "model_name": "vgg",
+    "model_params": {
+        "num_features": 3,
+        "num_classes": 2
+    },
+    "checkpoint": "lglutide/models/9/Mar26_18_59_fold_2.pth"
+}

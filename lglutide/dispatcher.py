@@ -3,6 +3,7 @@ from lglutide.architectures.cnn import ConvNet
 from lglutide.architectures.densenet import DenseNet121
 from lglutide.architectures.nn import NNModel
 from lglutide.architectures.resnet import resnet34
+from lglutide.architectures.vgg import VGG16
 
 MODELS = {
     "densenet": {
@@ -10,6 +11,13 @@ MODELS = {
         "params": {"num_classes": 2, "grayscale": False},
     },
     "resnet": {"model": resnet34, "params": {"num_classes": 2}},
+    "vgg": {
+        "model": VGG16,
+        "params": {
+            "num_features": 3,
+            "num_classes": 2,
+        },
+    },
     "cnn": {
         "model": ConvNet,
         "params": {

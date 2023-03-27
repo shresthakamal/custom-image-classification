@@ -33,14 +33,14 @@ def argument_parser():
         type=int,
     )
     parser.add_argument(
-        "-width", "--width", help="Image Width", required=False, default=256, type=int
+        "-width", "--width", help="Image Width", required=False, default=128, type=int
     )
     parser.add_argument(
         "-height",
         "--height",
         help="Image Height",
         required=False,
-        default=256,
+        default=128,
         type=int,
     )
     parser.add_argument(
@@ -93,7 +93,7 @@ def argument_parser():
         type=bool,
     )
     parser.add_argument(
-        "-gpu", "--gpu", help="use GPU", required=False, default=0, type=str
+        "-gpu", "--gpu", help="use GPU", required=False, default="0", type=str
     )
     parser.add_argument(
         "-densenet", "--densenet", help="Select Model DenseNet121", action="store_true"
@@ -101,6 +101,7 @@ def argument_parser():
     parser.add_argument(
         "-resnet", "--resnet", help="Select Model Resnet50", action="store_true"
     )
+    parser.add_argument("-vgg", "--vgg", help="Select Model VGG", action="store_true")
     parser.add_argument(
         "-config", "--config", help="Config", required=False, default="None", type=str
     )
@@ -110,6 +111,10 @@ def argument_parser():
         args["model_name"] = "resnet"
         args["model"] = MODELS["resnet"]["model"]
         args["model_params"] = MODELS["resnet"]["params"]
+    elif args["vgg"]:
+        args["model_name"] = "vgg"
+        args["model"] = MODELS["vgg"]["model"]
+        args["model_params"] = MODELS["vgg"]["params"]
     else:
         args["densenet"] = True
         args["model_name"] = "densenet"
